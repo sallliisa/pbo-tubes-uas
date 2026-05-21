@@ -103,6 +103,7 @@ export default defineConfig({
     exclude: ['@southneuhof/landing-section-schema'],
   },
   server: {
+    port: 5173,
     fs: {
       allow: [
         fileURLToPath(new URL('../..', import.meta.url)),
