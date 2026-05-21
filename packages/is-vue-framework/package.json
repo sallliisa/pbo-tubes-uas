@@ -1,0 +1,119 @@
+{
+  "name": "@southneuhof/is-vue-framework",
+  "private": false,
+  "version": "1.0.1",
+  "type": "module",
+  "description": "Vue application framework components and patterns for South Neuhof information systems.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/southneuhof/is-vue-framework.git"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./services": {
+      "types": "./dist/services/index.d.ts",
+      "import": "./dist/services/index.js"
+    },
+    "./adapters/defaults": {
+      "types": "./dist/adapters/defaults.d.ts",
+      "import": "./dist/adapters/defaults.js"
+    },
+    "./adapters/state": {
+      "types": "./dist/adapters/state.d.ts",
+      "import": "./dist/adapters/state.js"
+    },
+    "./adapters/behaviors": {
+      "types": "./dist/adapters/behaviors.d.ts",
+      "import": "./dist/adapters/behaviors.js"
+    },
+    "./adapters/*": {
+      "types": "./dist/adapters/*.d.ts",
+      "import": "./dist/adapters/*.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.vue.d.ts",
+      "import": "./dist/components/*.vue"
+    },
+    "./renderers/*": {
+      "types": "./dist/renderers/*.d.ts",
+      "import": "./dist/renderers/*.js"
+    },
+    "./behaviors/*": {
+      "types": "./dist/behaviors/*.d.ts",
+      "import": "./dist/behaviors/*.js"
+    },
+    "./styles/*": "./dist/styles/*",
+    "./router": {
+      "types": "./dist/router/index.d.ts",
+      "import": "./dist/router/index.js"
+    },
+    "./router/*": {
+      "types": "./dist/router/*.d.ts",
+      "import": "./dist/router/*.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "!dist/**/*.tsbuildinfo",
+    "!src/**/__tests__/**",
+    "!src/**/*.spec.*",
+    "!src/**/*.test.*",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "peerDependencies": {
+    "@southneuhof/is-data-model": "workspace:^",
+    "vue": "^3.5.12",
+    "vue-router": "^4.2.2"
+  },
+  "dependencies": {
+    "@southneuhof/apostle": "workspace:^",
+    "@southneuhof/utilities": "workspace:^",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^1.13.1",
+    "xlsx": "^0.18.5",
+    "vue": "^3.5.12",
+    "vue-router": "^4.2.2",
+    "vue-sonner": "^2.0.1",
+    "@vuepic/vue-datepicker": "^11.0.3",
+    "@vueuse/core": "^12.5.0",
+    "radix-vue": "^1.9.2",
+    "vuedraggable": "^4.1.0",
+    "date-fns": "^4.1.0",
+    "@tinymce/tinymce-vue": "^6.0.1",
+    "tinymce": "^7.2.1",
+    "uuid": "^11.0.2",
+    "vue3-google-map": "^0.15.0",
+    "vue-to-print": "^1.2.1",
+    "@headlessui/vue": "^1.7.14",
+    "vaul-vue": "^0.3.0",
+    "vue-tippy": "^6.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.16",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "jsdom": "^20.0.3",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.2.4",
+    "vitest": "^2.1.9"
+  },
+  "scripts": {
+    "build": "pnpm clean && pnpm build:js && pnpm build:types && pnpm copy:assets && pnpm clean:build-info",
+    "clean": "node ../../scripts/clean-package.mjs dist",
+    "clean:build-info": "node ../../scripts/clean-package.mjs dist/tsconfig.build.tsbuildinfo",
+    "build:js": "tsc -p tsconfig.build.json",
+    "build:types": "vue-tsc --declaration --declarationMap --emitDeclarationOnly -p tsconfig.build.json",
+    "copy:assets": "node ../../scripts/copy-package-assets.mjs packages/is-vue-framework/src packages/is-vue-framework/dist",
+    "type-check": "vue-tsc --noEmit -p tsconfig.build.json",
+    "test": "vitest run --environment jsdom"
+  }
+}

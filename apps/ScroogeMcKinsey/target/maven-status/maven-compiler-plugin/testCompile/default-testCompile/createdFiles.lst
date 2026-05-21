@@ -1,0 +1,3 @@
+backend/api/MysqlIntegrationSmokeTest.class
+backend/api/CrudControllerContractTest.class
+backend/api/CrudControllerContractTest$StubAdapter.class

@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "lib": ["dom", "es2022"],
+    "verbatimModuleSyntax": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true
+  }
+}

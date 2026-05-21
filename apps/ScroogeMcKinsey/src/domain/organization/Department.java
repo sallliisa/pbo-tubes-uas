@@ -1,0 +1,86 @@
+package domain.organization;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import domain.common.Identifiable;
+import validation.Validation;
+
+public class Department implements Identifiable<Integer> {
+    private final int departmentId;
+    private String name;
+    private final List<Employee> employees = new ArrayList<>();
+    private final List<Position> positions = new ArrayList<>();
+    private Employee manager;
+
+    public Department(int departmentId, String name) {
+        this.departmentId = departmentId;
+        this.name = Validation.requireNonBlank(name, "name");
+    }
+
+    public int getDepartmentId() {
+        return departmentId;
+    }
+
+    @Override
+    public Integer getId() {
+        return departmentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = Validation.requireNonBlank(name, "name");
+    }
+
+    public void addEmployee(Employee employee) {
+        Validation.requireNonNull(employee, "employee");
+        if (!employees.contains(employee)) {
+            employees.add(employee);
+            employee.setDepartment(this);
+        }
+    }
+
+    public void removeEmployee(int employeeId) {
+        Employee employee = employees.stream()
+            .filter(item -> item.getEmployeeId() == employeeId)
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Employee not found in department"));
+        
+        employees.remove(employee);
+        employee.setDepartment(null);
+        if (employee.equals(manager)) {
+            manager = null;
+        }
+    }
+
+    public void assignManager(Employee manager) {
+        Validation.requireNonNull(manager, "manager");
+        if (!employees.contains(manager)) {
+            throw new IllegalArgumentException("Manager must be an employee of the department.");
+        }
+
+        this.manager = manager;
+    }
+
+    public void addPosition(Position position) {
+        Validation.requireNonNull(position, "position");
+        if (!positions.contains(position)) {
+            positions.add(position);
+        }
+    }
+
+    public int getEmployeeCount() {
+        return employees.size();
+    }
+
+    public void printInfo() {
+        System.out.println("Department ID: " + departmentId);
+        System.out.println("Name: " + name);
+        System.out.println("Employee Count: " + employees.size());
+        System.out.println("Position Count: " + positions.size());
+        System.out.println("Manager: " + (manager != null ? manager.getFullName() : "-"));
+    }
+}
