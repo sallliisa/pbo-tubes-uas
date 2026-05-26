@@ -62,10 +62,6 @@
 /Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/ContractRepository.java
 /Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/DepartmentRepository.java
 /Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/EmployeeRepository.java
-/Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/InMemoryEmployeeRepository.java
-/Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/InMemoryInvoiceRepository.java
-/Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/InMemoryProjectRepository.java
-/Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/InMemoryRepository.java
 /Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/InvoiceRepository.java
 /Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/PositionRepository.java
 /Users/gamer/Documents/school/pbo/class/uts-tubes/pbo-tubes-uas/apps/api/src/repository/ProjectRepository.java

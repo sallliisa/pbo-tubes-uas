@@ -7,7 +7,6 @@ service/EmployeeService.class
 backend/model/ApiError.class
 domain/project/ProjectStatus.class
 backend/util/FieldUtil.class
-repository/InMemoryProjectRepository.class
 persistence/jdbc/ReflectionSupport.class
 domain/timesheet/Timesheet.class
 domain/project/ProjectAssignment.class
@@ -27,13 +26,11 @@ backend/adapters/ProjectsAdapter.class
 repository/Repository.class
 backend/adapters/EmployeesAdapter.class
 repository/ContractRepository.class
-repository/InMemoryRepository.class
 persistence/jdbc/JdbcRepositoryException.class
 repository/ClientRepository.class
 backend/adapters/AdapterSupport.class
 domain/timesheet/TimesheetEntry.class
 exception/InvalidContractStateException.class
-repository/InMemoryInvoiceRepository.class
 persistence/jdbc/JdbcEmployeeRepository.class
 backend/config/CorsConfig$1.class
 exceptions/BillingException.class
@@ -55,7 +52,6 @@ persistence/jdbc/JdbcClientRepository.class
 backend/adapters/InvoicesAdapter.class
 backend/model/ApiResponse.class
 persistence/jdbc/JdbcDepartmentRepository.class
-repository/InMemoryEmployeeRepository.class
 backend/adapters/DepartmentsAdapter.class
 backend/model/ApiException.class
 service/BillingService.class
@@ -74,7 +70,6 @@ repository/TimesheetRepository.class
 service/SigningService.class
 domain/billing/ContractStatus.class
 backend/crud/PageRequest.class
-app/App.class
 validation/Validation.class
 backend/model/PaginatedResult.class
 service/ReportService.class

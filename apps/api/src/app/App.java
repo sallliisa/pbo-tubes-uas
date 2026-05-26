@@ -33,9 +33,6 @@ import persistence.jdbc.JdbcInvoiceRepository;
 import persistence.jdbc.JdbcPositionRepository;
 import persistence.jdbc.JdbcProjectRepository;
 import persistence.jdbc.JdbcTimesheetRepository;
-import repository.InMemoryEmployeeRepository;
-import repository.InMemoryInvoiceRepository;
-import repository.InMemoryProjectRepository;
 import repository.ContractRepository;
 import repository.EmployeeRepository;
 import repository.InvoiceRepository;
@@ -58,48 +55,38 @@ public class App {
             InvoiceRepository invoiceRepository;
             JdbcTimesheetRepository timesheetJdbcRepository = null;
             ContractRepository contractRepository = null;
-            boolean jdbcMode = false;
 
             printSection("Repository Initialization");
-            try {
-                Connection connection = DatabaseConnection.getConnection();
-                employeeRepository = new JdbcEmployeeRepository(connection);
-                projectRepository = new JdbcProjectRepository(connection);
-                invoiceRepository = new JdbcInvoiceRepository(connection);
-                timesheetJdbcRepository = new JdbcTimesheetRepository(connection);
-                contractRepository = new JdbcContractRepository(connection);
-                JdbcDepartmentRepository departmentRepository = new JdbcDepartmentRepository(connection);
-                JdbcPositionRepository positionRepository = new JdbcPositionRepository(connection);
-                JdbcClientRepository clientRepository = new JdbcClientRepository(connection);
-                jdbcMode = true;
-                System.out.println("JDBC repositories active.");
+            Connection connection = DatabaseConnection.getConnection();
+            employeeRepository = new JdbcEmployeeRepository(connection);
+            projectRepository = new JdbcProjectRepository(connection);
+            invoiceRepository = new JdbcInvoiceRepository(connection);
+            timesheetJdbcRepository = new JdbcTimesheetRepository(connection);
+            contractRepository = new JdbcContractRepository(connection);
+            JdbcDepartmentRepository departmentRepository = new JdbcDepartmentRepository(connection);
+            JdbcPositionRepository positionRepository = new JdbcPositionRepository(connection);
+            JdbcClientRepository clientRepository = new JdbcClientRepository(connection);
+            System.out.println("JDBC repositories active.");
 
-                printSection("JDBC Seed Verification");
-                System.out.println("Employees loaded: " + employeeRepository.findAll().size());
-                System.out.println("Employee 1001 exists: " + employeeRepository.findById(1001).isPresent());
-                System.out.println("Projects loaded: " + projectRepository.findAll().size());
-                System.out.println("Project 7001 with client exists: " + projectRepository.findByIdWithClient(7001).isPresent());
-                if (timesheetJdbcRepository != null) {
-                    List<Timesheet> seededTimesheets = timesheetJdbcRepository.findAll();
-                    System.out.println("Timesheets loaded: " + seededTimesheets.size());
-                    if (!seededTimesheets.isEmpty()) {
-                        System.out.println("First timesheet total hours: " + seededTimesheets.get(0).getTotalHours());
-                    }
+            printSection("JDBC Seed Verification");
+            System.out.println("Employees loaded: " + employeeRepository.findAll().size());
+            System.out.println("Employee 1001 exists: " + employeeRepository.findById(1001).isPresent());
+            System.out.println("Projects loaded: " + projectRepository.findAll().size());
+            System.out.println("Project 7001 with client exists: " + projectRepository.findByIdWithClient(7001).isPresent());
+            if (timesheetJdbcRepository != null) {
+                List<Timesheet> seededTimesheets = timesheetJdbcRepository.findAll();
+                System.out.println("Timesheets loaded: " + seededTimesheets.size());
+                if (!seededTimesheets.isEmpty()) {
+                    System.out.println("First timesheet total hours: " + seededTimesheets.get(0).getTotalHours());
                 }
-                System.out.println("Invoices for project 7001: " + invoiceRepository.findByProjectId(7001).size());
-                if (contractRepository != null) {
-                    System.out.println("Contracts for project 7001: " + contractRepository.findByProjectId(7001).size());
-                }
-                System.out.println("Departments loaded: " + departmentRepository.findAll().size());
-                System.out.println("Positions loaded: " + positionRepository.findAll().size());
-                System.out.println("Clients loaded: " + clientRepository.findAll().size());
-            } catch (SQLException | RuntimeException sqlFailure) {
-                System.out.println("JDBC initialization failed. Falling back to in-memory repositories.");
-                System.out.println("Reason: " + sqlFailure.getMessage());
-                employeeRepository = new InMemoryEmployeeRepository();
-                projectRepository = new InMemoryProjectRepository();
-                invoiceRepository = new InMemoryInvoiceRepository();
             }
+            System.out.println("Invoices for project 7001: " + invoiceRepository.findByProjectId(7001).size());
+            if (contractRepository != null) {
+                System.out.println("Contracts for project 7001: " + contractRepository.findByProjectId(7001).size());
+            }
+            System.out.println("Departments loaded: " + departmentRepository.findAll().size());
+            System.out.println("Positions loaded: " + positionRepository.findAll().size());
+            System.out.println("Clients loaded: " + clientRepository.findAll().size());
 
             printSection("Service Initialization");
             EmployeeService employeeService = new EmployeeService(employeeRepository);
@@ -359,7 +346,7 @@ public class App {
             System.out.println("Client active projects: " + client.getActiveProjects().size());
             System.out.println("Approved timesheets: " + approvedTimesheets.size());
             System.out.println("Signed documents: " + signables.size());
-            System.out.println("Repository mode: " + (jdbcMode ? "JDBC" : "In-Memory"));
+            System.out.println("Repository mode: JDBC");
             System.out.println("Workflow completed with service-oriented orchestration.");
         } catch (DomainException e) {
             System.out.println("An unexpected error occurred: " + e.getMessage());
