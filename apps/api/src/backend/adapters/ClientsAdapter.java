@@ -4,16 +4,16 @@ import backend.crud.ModelAdapter;
 import backend.model.ApiException;
 import domain.organization.Client;
 import org.springframework.stereotype.Component;
-import persistence.jdbc.JdbcClientRepository;
+import repository.ClientRepository;
 
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class ClientsAdapter implements ModelAdapter {
-    private final JdbcClientRepository repository;
+    private final ClientRepository repository;
 
-    public ClientsAdapter(JdbcClientRepository repository) {
+    public ClientsAdapter(ClientRepository repository) {
         this.repository = repository;
     }
 

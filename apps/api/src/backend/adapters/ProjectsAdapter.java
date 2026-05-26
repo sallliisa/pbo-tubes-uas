@@ -7,9 +7,9 @@ import domain.organization.Client;
 import domain.project.Project;
 import domain.project.ProjectStatus;
 import org.springframework.stereotype.Component;
-import persistence.jdbc.JdbcClientRepository;
-import persistence.jdbc.JdbcInvoiceRepository;
-import persistence.jdbc.JdbcProjectRepository;
+import repository.ClientRepository;
+import repository.InvoiceRepository;
+import repository.ProjectRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,11 +17,11 @@ import java.util.Map;
 
 @Component
 public class ProjectsAdapter implements ModelAdapter {
-    private final JdbcProjectRepository repository;
-    private final JdbcClientRepository clientRepository;
-    private final JdbcInvoiceRepository invoiceRepository;
+    private final ProjectRepository repository;
+    private final ClientRepository clientRepository;
+    private final InvoiceRepository invoiceRepository;
 
-    public ProjectsAdapter(JdbcProjectRepository repository, JdbcClientRepository clientRepository, JdbcInvoiceRepository invoiceRepository) {
+    public ProjectsAdapter(ProjectRepository repository, ClientRepository clientRepository, InvoiceRepository invoiceRepository) {
         this.repository = repository;
         this.clientRepository = clientRepository;
         this.invoiceRepository = invoiceRepository;

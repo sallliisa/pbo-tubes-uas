@@ -6,7 +6,7 @@ import backend.util.FieldUtil;
 import domain.billing.Invoice;
 import domain.billing.InvoiceStatus;
 import org.springframework.stereotype.Component;
-import persistence.jdbc.JdbcInvoiceRepository;
+import repository.InvoiceRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.Map;
 
 @Component
 public class InvoicesAdapter implements ModelAdapter {
-    private final JdbcInvoiceRepository repository;
+    private final InvoiceRepository repository;
 
-    public InvoicesAdapter(JdbcInvoiceRepository repository) {
+    public InvoicesAdapter(InvoiceRepository repository) {
         this.repository = repository;
     }
 

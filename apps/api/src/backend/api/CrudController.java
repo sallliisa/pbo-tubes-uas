@@ -64,22 +64,39 @@ public class CrudController {
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> create(@PathVariable String model, @RequestBody Map<String, Object> body) {
         ModelAdapter adapter = registry.resolve(model);
-        CrudValidation.validateAllowedFields(body, adapter, false);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(crudService.create(model, body)));
+        Map<String, Object> normalized = normalizeIdentityAlias(body, adapter);
+        CrudValidation.validateAllowedFields(normalized, adapter, false);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(crudService.create(model, normalized)));
     }
 
     @PutMapping("/update")
     public ResponseEntity<ApiResponse> update(@PathVariable String model, @RequestBody Map<String, Object> body) {
         ModelAdapter adapter = registry.resolve(model);
-        CrudValidation.validateAllowedFields(body, adapter, true);
-        return ResponseEntity.ok(ApiResponse.success(crudService.update(model, body)));
+        Map<String, Object> normalized = normalizeIdentityAlias(body, adapter);
+        CrudValidation.validateAllowedFields(normalized, adapter, true);
+        return ResponseEntity.ok(ApiResponse.success(crudService.update(model, normalized)));
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse> delete(@PathVariable String model, @RequestBody Map<String, Object> body) {
         ModelAdapter adapter = registry.resolve(model);
-        CrudValidation.validateAllowedFields(body, adapter, true);
-        return ResponseEntity.ok(ApiResponse.success(crudService.delete(model, body)));
+        Map<String, Object> normalized = normalizeIdentityAlias(body, adapter);
+        CrudValidation.validateAllowedFields(normalized, adapter, true);
+        return ResponseEntity.ok(ApiResponse.success(crudService.delete(model, normalized)));
+    }
+
+    private Map<String, Object> normalizeIdentityAlias(Map<String, Object> body, ModelAdapter adapter) {
+        Map<String, Object> normalized = new LinkedHashMap<>(body);
+        String identity = adapter.identityField();
+
+        if (!"id".equals(identity) && normalized.containsKey("id")) {
+            if (!normalized.containsKey(identity)) {
+                normalized.put(identity, normalized.get("id"));
+            }
+            normalized.remove("id");
+        }
+
+        return normalized;
     }
 
     private Map<String, Object> resolveRecordById(String model, String id) {

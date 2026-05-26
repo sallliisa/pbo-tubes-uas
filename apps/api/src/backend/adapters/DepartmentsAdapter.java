@@ -4,16 +4,16 @@ import backend.crud.ModelAdapter;
 import backend.model.ApiException;
 import domain.organization.Department;
 import org.springframework.stereotype.Component;
-import persistence.jdbc.JdbcDepartmentRepository;
+import repository.DepartmentRepository;
 
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class DepartmentsAdapter implements ModelAdapter {
-    private final JdbcDepartmentRepository repository;
+    private final DepartmentRepository repository;
 
-    public DepartmentsAdapter(JdbcDepartmentRepository repository) {
+    public DepartmentsAdapter(DepartmentRepository repository) {
         this.repository = repository;
     }
 

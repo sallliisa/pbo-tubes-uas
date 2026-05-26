@@ -109,16 +109,6 @@ package "Repository :: Abstractions" as RAbs {
 }
 
 ' =========================
-' Repository In-Memory
-' =========================
-package "Repository :: In-Memory" as RMem {
-  class InMemoryRepository<ID, T extends Identifiable<ID>>
-  class InMemoryEmployeeRepository
-  class InMemoryProjectRepository
-  class InMemoryInvoiceRepository
-}
-
-' =========================
 ' Persistence JDBC
 ' =========================
 package "Persistence :: JDBC" as PJdbc {
@@ -178,13 +168,6 @@ package "Cross-Cutting :: Validation & Exceptions" as Cross {
   class InvalidTimesheetStateException
 }
 
-' =========================
-' Demo Runner
-' =========================
-package "Application :: Demo Runner" as AppLayer {
-  class App
-}
-
 ' ----- Inheritance / Interface Realization -----
 Employee ..|> Identifiable
 PermanentEmployee --|> Employee
@@ -200,11 +183,6 @@ DepartmentRepository ..|> Repository
 PositionRepository ..|> Repository
 ClientRepository ..|> Repository
 TimesheetRepository ..|> Repository
-
-InMemoryRepository ..|> Repository
-InMemoryEmployeeRepository --|> InMemoryRepository
-InMemoryProjectRepository --|> InMemoryRepository
-InMemoryInvoiceRepository --|> InMemoryRepository
 
 JdbcEmployeeRepository ..|> EmployeeRepository
 JdbcProjectRepository ..|> ProjectRepository
@@ -249,23 +227,16 @@ CrudController --> GenericCrudService
 CrudController --> CrudRegistry
 GenericCrudService --> CrudRegistry
 CrudRegistry --> ModelAdapter
-ModelAdapter --> EmployeeRepository
-ModelAdapter --> ProjectRepository
-ModelAdapter --> ClientRepository
-ModelAdapter --> DepartmentRepository
-ModelAdapter --> PositionRepository
-ModelAdapter --> ContractRepository
-ModelAdapter --> InvoiceRepository
-
-' ----- Runner wiring -----
-App --> EmployeeService
-App --> ProjectService
-App --> TimesheetService
-App --> BillingService
-App --> SigningService
-App --> PayrollService
-App --> ReportService
-App --> Repository
-App --> DatabaseConnection
+EmployeesAdapter --> EmployeeRepository
+EmployeesAdapter --> PositionRepository
+EmployeesAdapter --> DepartmentRepository
+ProjectsAdapter --> ProjectRepository
+ProjectsAdapter --> ClientRepository
+ProjectsAdapter --> InvoiceRepository
+ClientsAdapter --> ClientRepository
+DepartmentsAdapter --> DepartmentRepository
+PositionsAdapter --> PositionRepository
+ContractsAdapter --> ContractRepository
+InvoicesAdapter --> InvoiceRepository
 
 @enduml

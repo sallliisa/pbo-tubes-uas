@@ -35,7 +35,8 @@ class CrudControllerContractTest {
             new StubAdapter("clients", "client_id", List.of(
                 "client_id", "name", "industry", "contact_name", "contact_email", "contact_phone"
             )),
-            new StubAdapter("departments", "department_id", List.of("department_id", "name"))
+            new StubAdapter("departments", "department_id", List.of("department_id", "name")),
+            new StubAdapter("invoices", "invoice_id", List.of("invoice_id", "title", "amount"))
         );
 
         CrudRegistry registry = new CrudRegistry(adapters);
@@ -113,6 +114,16 @@ class CrudControllerContractTest {
     }
 
     @Test
+    void updateAcceptsIdAliasForIdentity() throws Exception {
+        mockMvc.perform(put("/api/clients/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\":7,\"name\":\"ACME\",\"industry\":\"Tech\",\"contact_name\":\"Jane\",\"contact_email\":\"jane@acme.com\",\"contact_phone\":\"0812\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ok").value(true))
+            .andExpect(jsonPath("$.data.client_id").value(7));
+    }
+
+    @Test
     void deleteReturns200AndCanonicalEnvelope() throws Exception {
         mockMvc.perform(delete("/api/departments/delete")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -120,6 +131,26 @@ class CrudControllerContractTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.ok").value(true))
             .andExpect(jsonPath("$.data.department_id").value(3));
+    }
+
+    @Test
+    void deleteAcceptsIdAliasForIdentity() throws Exception {
+        mockMvc.perform(delete("/api/departments/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\":3}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ok").value(true))
+            .andExpect(jsonPath("$.data.department_id").value(3));
+    }
+
+    @Test
+    void invoicesDeleteAcceptsIdAliasForIdentity() throws Exception {
+        mockMvc.perform(delete("/api/invoices/delete")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"id\":11}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.ok").value(true))
+            .andExpect(jsonPath("$.data.invoice_id").value(11));
     }
 
     @Test
@@ -182,6 +213,8 @@ class CrudControllerContractTest {
         private void seed() {
             if ("employees".equals(modelName)) {
                 store.add(new LinkedHashMap<>(Map.of("employee_id", 1001, "first_name", "Seed")));
+            } else if ("invoices".equals(modelName)) {
+                store.add(new LinkedHashMap<>(Map.of("invoice_id", 11, "title", "Seed Invoice", "amount", 1000)));
             }
         }
 

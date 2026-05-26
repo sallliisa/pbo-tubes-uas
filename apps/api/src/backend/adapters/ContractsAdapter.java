@@ -6,7 +6,7 @@ import backend.util.FieldUtil;
 import domain.billing.Contract;
 import domain.billing.ContractStatus;
 import org.springframework.stereotype.Component;
-import persistence.jdbc.JdbcContractRepository;
+import repository.ContractRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.Map;
 
 @Component
 public class ContractsAdapter implements ModelAdapter {
-    private final JdbcContractRepository repository;
+    private final ContractRepository repository;
 
-    public ContractsAdapter(JdbcContractRepository repository) {
+    public ContractsAdapter(ContractRepository repository) {
         this.repository = repository;
     }
 

@@ -9,9 +9,9 @@ import domain.organization.Employee;
 import domain.organization.Position;
 import domain.organization.PermanentEmployee;
 import org.springframework.stereotype.Component;
-import persistence.jdbc.JdbcDepartmentRepository;
-import persistence.jdbc.JdbcEmployeeRepository;
-import persistence.jdbc.JdbcPositionRepository;
+import repository.DepartmentRepository;
+import repository.EmployeeRepository;
+import repository.PositionRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,14 +20,14 @@ import java.util.Map;
 
 @Component
 public class EmployeesAdapter implements ModelAdapter {
-    private final JdbcEmployeeRepository repository;
-    private final JdbcPositionRepository positionRepository;
-    private final JdbcDepartmentRepository departmentRepository;
+    private final EmployeeRepository repository;
+    private final PositionRepository positionRepository;
+    private final DepartmentRepository departmentRepository;
 
     public EmployeesAdapter(
-        JdbcEmployeeRepository repository,
-        JdbcPositionRepository positionRepository,
-        JdbcDepartmentRepository departmentRepository
+        EmployeeRepository repository,
+        PositionRepository positionRepository,
+        DepartmentRepository departmentRepository
     ) {
         this.repository = repository;
         this.positionRepository = positionRepository;

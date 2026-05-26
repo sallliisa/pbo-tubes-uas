@@ -4,16 +4,16 @@ import backend.crud.ModelAdapter;
 import backend.model.ApiException;
 import domain.organization.Position;
 import org.springframework.stereotype.Component;
-import persistence.jdbc.JdbcPositionRepository;
+import repository.PositionRepository;
 
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class PositionsAdapter implements ModelAdapter {
-    private final JdbcPositionRepository repository;
+    private final PositionRepository repository;
 
-    public PositionsAdapter(JdbcPositionRepository repository) {
+    public PositionsAdapter(PositionRepository repository) {
         this.repository = repository;
     }
 

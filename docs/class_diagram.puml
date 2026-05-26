@@ -360,23 +360,6 @@ package "Repository :: Abstractions" {
 }
 
 ' =========================
-' Repository :: In-Memory
-' =========================
-package "Repository :: In-Memory" {
-  class InMemoryRepository<ID, T extends Identifiable<ID>> {
-    -storage: Map<ID, T>
-    +save(entity: T): void
-    +findById(id: ID): Optional<T>
-    +findAll(): List<T>
-    +deleteById(id: ID): void
-  }
-
-  class InMemoryEmployeeRepository
-  class InMemoryProjectRepository
-  class InMemoryInvoiceRepository
-}
-
-' =========================
 ' Persistence :: JDBC
 ' =========================
 package "Persistence :: JDBC" {
@@ -514,13 +497,31 @@ package "Backend API :: Generic CRUD" {
 }
 
 package "Backend API :: Adapters" {
-  class EmployeesAdapter
-  class ProjectsAdapter
-  class ClientsAdapter
-  class DepartmentsAdapter
-  class PositionsAdapter
-  class ContractsAdapter
-  class InvoicesAdapter
+  class EmployeesAdapter {
+    -repository: EmployeeRepository
+    -positionRepository: PositionRepository
+    -departmentRepository: DepartmentRepository
+  }
+  class ProjectsAdapter {
+    -repository: ProjectRepository
+    -clientRepository: ClientRepository
+    -invoiceRepository: InvoiceRepository
+  }
+  class ClientsAdapter {
+    -repository: ClientRepository
+  }
+  class DepartmentsAdapter {
+    -repository: DepartmentRepository
+  }
+  class PositionsAdapter {
+    -repository: PositionRepository
+  }
+  class ContractsAdapter {
+    -repository: ContractRepository
+  }
+  class InvoicesAdapter {
+    -repository: InvoiceRepository
+  }
   class AdapterSupport
 }
 
@@ -555,13 +556,6 @@ package "Cross-Cutting :: Validation & Exceptions" {
   class InvalidTimesheetStateException
 }
 
-package "Application :: Demo Runner" {
-  class App {
-    +main(args: String[]): void
-    -printSection(title: String): void
-  }
-}
-
 ' ----- relationships -----
 Employee ..|> Identifiable
 Contract ..|> Identifiable
@@ -586,14 +580,6 @@ PositionRepository ..|> Repository
 ClientRepository ..|> Repository
 TimesheetRepository ..|> Repository
 
-InMemoryRepository ..|> Repository
-InMemoryEmployeeRepository --|> InMemoryRepository
-InMemoryProjectRepository --|> InMemoryRepository
-InMemoryInvoiceRepository --|> InMemoryRepository
-InMemoryEmployeeRepository ..|> EmployeeRepository
-InMemoryProjectRepository ..|> ProjectRepository
-InMemoryInvoiceRepository ..|> InvoiceRepository
-
 JdbcEmployeeRepository ..|> EmployeeRepository
 JdbcProjectRepository ..|> ProjectRepository
 JdbcInvoiceRepository ..|> InvoiceRepository
@@ -617,6 +603,17 @@ GenericCrudService --> CrudRegistry
 CrudRegistry --> ModelAdapter
 CrudController --> ApiResponse
 GenericCrudService --> PaginatedResult
+EmployeesAdapter --> EmployeeRepository
+EmployeesAdapter --> PositionRepository
+EmployeesAdapter --> DepartmentRepository
+ProjectsAdapter --> ProjectRepository
+ProjectsAdapter --> ClientRepository
+ProjectsAdapter --> InvoiceRepository
+ClientsAdapter --> ClientRepository
+DepartmentsAdapter --> DepartmentRepository
+PositionsAdapter --> PositionRepository
+ContractsAdapter --> ContractRepository
+InvoicesAdapter --> InvoiceRepository
 
 EmployeeService --> EmployeeRepository
 ProjectService --> ProjectRepository
@@ -636,15 +633,5 @@ Project "1" o-- "*" Contract
 Project "1" o-- "*" Invoice
 Timesheet "1" o-- "*" TimesheetEntry
 Employee "*" -- "*" ProjectAssignment
-
-App --> EmployeeService
-App --> ProjectService
-App --> TimesheetService
-App --> BillingService
-App --> SigningService
-App --> PayrollService
-App --> ReportService
-App --> DatabaseConnection
-App --> Repository
 
 @enduml
