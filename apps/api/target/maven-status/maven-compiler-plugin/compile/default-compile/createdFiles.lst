@@ -39,6 +39,7 @@ backend/config/CorsConfig$1.class
 exceptions/BillingException.class
 persistence/jdbc/JdbcTimesheetRepository.class
 service/ProjectService.class
+backend/adapters/ContractsAdapter.class
 domain/organization/Department.class
 backend/config/DatabaseBeans.class
 domain/billing/Contract.class
@@ -51,6 +52,7 @@ exceptions/AssignmentException.class
 persistence/jdbc/JdbcPositionRepository.class
 repository/InvoiceRepository.class
 persistence/jdbc/JdbcClientRepository.class
+backend/adapters/InvoicesAdapter.class
 backend/model/ApiResponse.class
 persistence/jdbc/JdbcDepartmentRepository.class
 repository/InMemoryEmployeeRepository.class

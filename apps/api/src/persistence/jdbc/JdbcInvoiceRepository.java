@@ -34,6 +34,10 @@ public class JdbcInvoiceRepository extends GenericJdbcRepository<Integer, Invoic
             rs.getString("notes"),
             rs.getBigDecimal("amount")
         );
+        Object rawProjectId = rs.getObject("project_id");
+        if (rawProjectId != null) {
+            invoice.attachProject(((Number) rawProjectId).intValue());
+        }
         ReflectionSupport.setField(invoice, "status", InvoiceStatus.valueOf(rs.getString("status")));
         ReflectionSupport.setField(invoice, "signed", rs.getBoolean("signed"));
         ReflectionSupport.setField(invoice, "signedBy", rs.getString("signed_by"));

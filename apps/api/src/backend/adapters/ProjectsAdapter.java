@@ -2,13 +2,16 @@ package backend.adapters;
 
 import backend.crud.ModelAdapter;
 import backend.model.ApiException;
+import backend.util.FieldUtil;
 import domain.organization.Client;
 import domain.project.Project;
 import domain.project.ProjectStatus;
 import org.springframework.stereotype.Component;
 import persistence.jdbc.JdbcClientRepository;
+import persistence.jdbc.JdbcInvoiceRepository;
 import persistence.jdbc.JdbcProjectRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -16,10 +19,12 @@ import java.util.Map;
 public class ProjectsAdapter implements ModelAdapter {
     private final JdbcProjectRepository repository;
     private final JdbcClientRepository clientRepository;
+    private final JdbcInvoiceRepository invoiceRepository;
 
-    public ProjectsAdapter(JdbcProjectRepository repository, JdbcClientRepository clientRepository) {
+    public ProjectsAdapter(JdbcProjectRepository repository, JdbcClientRepository clientRepository, JdbcInvoiceRepository invoiceRepository) {
         this.repository = repository;
         this.clientRepository = clientRepository;
+        this.invoiceRepository = invoiceRepository;
     }
 
     @Override
@@ -31,7 +36,7 @@ public class ProjectsAdapter implements ModelAdapter {
 
     @Override
     public Map<String, Object> create(Map<String, Object> body) {
-        int id = AdapterSupport.requiredInt(body, "project_id");
+        int id = AdapterSupport.nextIntId(repository.findAll());
         Project project = fromBody(body, id);
         repository.save(project);
         return repository.findById(id).map(this::toMap).orElseThrow(() -> new ApiException("Record not found", 404));
@@ -85,12 +90,17 @@ public class ProjectsAdapter implements ModelAdapter {
     }
 
     private Map<String, Object> toMap(Project project) {
-        return AdapterSupport.toApiMap(project, Map.of(
+        Map<String, Object> out = AdapterSupport.toApiMap(project, Map.of(
             "projectId", "project_id",
             "clientId", "client_id",
             "startDate", "start_date",
             "endDate", "end_date"
         ));
+        BigDecimal billed = invoiceRepository.findByProjectId(project.getId()).stream()
+            .map(invoice -> "Paid".equals(String.valueOf(FieldUtil.getField(invoice, "status"))) ? invoice.getAmount() : BigDecimal.ZERO)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        out.put("total_billed_amount", billed);
+        return out;
     }
 
     @Override

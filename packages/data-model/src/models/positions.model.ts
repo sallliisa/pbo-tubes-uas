@@ -8,10 +8,10 @@ const positions: ModelConfig = withModelDefaults({
   fields: ['position_id', 'title', 'level', 'min_salary', 'max_salary', 'description'],
   fieldsAlias: {
     position_id: 'Position ID',
-    title: 'Title',
+    title: 'Position Title',
     level: 'Level',
-    min_salary: 'Min Salary',
-    max_salary: 'Max Salary',
+    min_salary: 'Minimum Salary',
+    max_salary: 'Maximum Salary',
     description: 'Description',
   },
   view: {
@@ -20,8 +20,8 @@ const positions: ModelConfig = withModelDefaults({
     },
   },
   transaction: {
+    fields: ['title', 'level', 'min_salary', 'max_salary', 'description'],
     inputConfig: {
-      position_id: { type: 'number', props: { required: true } },
       title: { type: 'text', props: { required: true } },
       level: { type: 'text', props: { required: true } },
       min_salary: { type: 'number', props: { required: true, validation: z.number().nonnegative() } },

@@ -8,7 +8,7 @@ const clients: ModelConfig = withModelDefaults({
   fields: ['client_id', 'name', 'industry', 'contact_name', 'contact_email', 'contact_phone'],
   fieldsAlias: {
     client_id: 'Client ID',
-    name: 'Name',
+    name: 'Client Name',
     industry: 'Industry',
     contact_name: 'Contact Name',
     contact_email: 'Contact Email',
@@ -20,8 +20,8 @@ const clients: ModelConfig = withModelDefaults({
     },
   },
   transaction: {
+    fields: ['name', 'industry', 'contact_name', 'contact_email', 'contact_phone'],
     inputConfig: {
-      client_id: { type: 'number', props: { required: true } },
       name: { type: 'text', props: { required: true } },
       industry: { type: 'text', props: { required: true } },
       contact_name: { type: 'text', props: { required: true } },

@@ -1,0 +1,650 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+title ScroogeMcKinsey - Detailed Class Diagram (Separated by Concern)
+
+' =========================
+' Domain :: Common
+' =========================
+package "Domain :: Common" {
+  interface Identifiable<ID> {
+    +getId(): ID
+  }
+
+  interface Signable {
+    +sign(signer: String): void
+    +isSigned(): boolean
+  }
+}
+
+' =========================
+' Domain :: Organization
+' =========================
+package "Domain :: Organization" {
+  abstract class Employee {
+    -TIMESHEET_SEQUENCE: Integer
+    -employeeId: int
+    -firstName: String
+    -lastName: String
+    -email: String
+    -hireDate: LocalDate
+    -salary: BigDecimal
+    -position: Position
+    -department: Department
+    -assignments: List<ProjectAssignment>
+    -timesheets: List<Timesheet>
+    +Employee(int, String, String, String, LocalDate, BigDecimal)
+    +getEmployeeId(): int
+    +getId(): Integer
+    +getFullName(): String
+    +getEmail(): String
+    +setEmail(email: String): void
+    +getHireDate(): LocalDate
+    +getSalary(): BigDecimal
+    +updateSalary(newSalary: BigDecimal): void
+    +assignPosition(position: Position): void
+    +createTimesheet(project: Project, periodStart: LocalDate, periodEnd: LocalDate): Timesheet
+    +printInfo(): void
+    +addAssignment(assignment: ProjectAssignment): void
+    +setDepartment(department: Department): void
+    {abstract} +getEmployeeType(): String
+    {abstract} +calculateCompensation(): BigDecimal
+  }
+
+  class PermanentEmployee {
+    -benefitPlan: String
+    -annualLeaveQuota: int
+    +PermanentEmployee(int, String, String, String, LocalDate, BigDecimal, String, int)
+    +getBenefitPlan(): String
+    +updateBenefitPlan(benefitPlan: String): void
+    +getAnnualLeaveQuota(): int
+    +requestLeave(days: int): void
+    +printInfo(): void
+    +getEmployeeType(): String
+    +calculateCompensation(): BigDecimal
+  }
+
+  class ContractEmployee {
+    -contractStartDate: LocalDate
+    -contractEndDate: LocalDate
+    +ContractEmployee(int, String, String, String, LocalDate, BigDecimal, LocalDate, LocalDate)
+    +getContractDuration(): int
+    +extendContract(newEndDate: LocalDate): void
+    +isContractActive(onDate: LocalDate): boolean
+    +printInfo(): void
+    +getEmployeeType(): String
+    +calculateCompensation(): BigDecimal
+  }
+
+  class Department {
+    -departmentId: int
+    -name: String
+    -positions: List<Position>
+    -manager: Employee
+    +Department(int, String)
+    +getId(): Integer
+    +getName(): String
+    +addPosition(position: Position): void
+    +assignManager(manager: Employee): void
+  }
+
+  class Position {
+    -positionId: int
+    -title: String
+    -level: String
+    -minSalary: BigDecimal
+    -maxSalary: BigDecimal
+    -description: String
+    +Position(int, String, String, BigDecimal, BigDecimal, String)
+    +getId(): Integer
+    +getTitle(): String
+    +isSalaryInRange(salary: BigDecimal): boolean
+  }
+
+  class Client {
+    -clientId: int
+    -name: String
+    -industry: String
+    -contactPerson: String
+    -contactEmail: String
+    -contactPhone: String
+    -projects: List<Project>
+    +Client(int, String, String, String, String, String)
+    +getId(): Integer
+    +getName(): String
+    +addProject(project: Project): void
+  }
+}
+
+' =========================
+' Domain :: Project
+' =========================
+package "Domain :: Project" {
+  enum ProjectStatus {
+    Planning
+    Active
+    Completed
+    Cancelled
+  }
+
+  class ProjectAssignment {
+    -assignmentId: int
+    -employee: Employee
+    -project: Project
+    -role: String
+    -startDate: LocalDate
+    -endDate: LocalDate
+    +ProjectAssignment(int, Employee, Project, String, LocalDate, LocalDate)
+    +getAssignmentDuration(): long
+    +isActive(onDate: LocalDate): boolean
+  }
+
+  class Project {
+    -projectId: int
+    -name: String
+    -description: String
+    -startDate: LocalDate
+    -endDate: LocalDate
+    -status: ProjectStatus
+    -budget: BigDecimal
+    -client: Client
+    -assignments: List<ProjectAssignment>
+    -timesheets: List<Timesheet>
+    -contracts: List<Contract>
+    -invoices: List<Invoice>
+    +Project(int, String, String, LocalDate, LocalDate, ProjectStatus, BigDecimal)
+    +getId(): Integer
+    +getName(): String
+    +getStatus(): ProjectStatus
+    +assignEmployee(employee: Employee, role: String): ProjectAssignment
+    +assignEmployee(employee: Employee, role: String, startDate: LocalDate, endDate: LocalDate): ProjectAssignment
+    +addTimesheetRecord(timesheet: Timesheet): void
+    +addContract(contract: Contract): void
+    +addInvoice(invoice: Invoice): void
+    +getTotalBilledAmount(): BigDecimal
+  }
+}
+
+' =========================
+' Domain :: Timesheet
+' =========================
+package "Domain :: Timesheet" {
+  enum TimesheetStatus {
+    Draft
+    Submitted
+    Approved
+    Rejected
+  }
+
+  class TimesheetEntry {
+    -entryId: int
+    -workDate: LocalDate
+    -hoursWorked: BigDecimal
+    -billable: boolean
+    -description: String
+    +TimesheetEntry(int, LocalDate, BigDecimal, boolean, String)
+    +getHoursWorked(): BigDecimal
+    +isBillable(): boolean
+  }
+
+  class Timesheet {
+    -timesheetId: int
+    -periodStart: LocalDate
+    -periodEnd: LocalDate
+    -status: TimesheetStatus
+    -owner: Employee
+    -project: Project
+    -entries: List<TimesheetEntry>
+    +Timesheet(int, LocalDate, LocalDate, TimesheetStatus)
+    +getId(): Integer
+    +attachOwner(owner: Employee, project: Project): void
+    +addEntry(entry: TimesheetEntry): void
+    +addEntry(entryId: int, workDate: LocalDate, hours: BigDecimal, billable: boolean, description: String): void
+    +submit(): void
+    +approve(): void
+    +reject(reason: String): void
+    +getTotalHours(): BigDecimal
+    +getBillableHours(): BigDecimal
+    +getStatus(): TimesheetStatus
+  }
+}
+
+' =========================
+' Domain :: Billing
+' =========================
+package "Domain :: Billing" {
+  enum ContractStatus {
+    Draft
+    Active
+    Expired
+    Terminated
+  }
+
+  enum InvoiceStatus {
+    Draft
+    Generated
+    Sent
+    Paid
+    Overdue
+    Cancelled
+  }
+
+  class Contract {
+    -contractId: int
+    -title: String
+    -createdDate: LocalDate
+    -notes: String
+    -contractNumber: String
+    -effectiveDate: LocalDate
+    -endDate: LocalDate
+    -value: BigDecimal
+    -terms: String
+    -status: ContractStatus
+    -signed: boolean
+    -signedBy: String
+    +Contract(int, String, LocalDate, String, String, LocalDate, LocalDate, BigDecimal, String)
+    +getId(): Integer
+    +sign(signer: String): void
+    +isSigned(): boolean
+    +renew(newEndDate: LocalDate): void
+    +renew(newEndDate: LocalDate, newValue: BigDecimal): void
+    +terminate(reason: String): void
+  }
+
+  class Invoice {
+    -invoiceId: int
+    -title: String
+    -createdDate: LocalDate
+    -notes: String
+    -amount: BigDecimal
+    -status: InvoiceStatus
+    -signed: boolean
+    -signedBy: String
+    +Invoice(int, String, LocalDate, String, BigDecimal)
+    +getId(): Integer
+    +sign(signer: String): void
+    +isSigned(): boolean
+    +generateFromTimesheet(timesheet: Timesheet, ratePerHour: BigDecimal): void
+    +markSent(): void
+    +markPaid(): void
+    +setNotes(notes: String): void
+  }
+}
+
+' =========================
+' Service Layer
+' =========================
+package "Service Layer :: Use Cases" {
+  class EmployeeService {
+    -employeeRepository: EmployeeRepository
+    +EmployeeService(employeeRepository: EmployeeRepository)
+    +registerEmployee(employee: Employee, department: Department, position: Position): void
+    +assignDepartmentManager(department: Department, manager: Employee): void
+    +save(employee: Employee): void
+    +findEmployee(id: int): Optional<Employee>
+    +findAllEmployees(): List<Employee>
+    +copyEmployees(source: Collection<? extends Employee>, target: Collection<? super Employee>): void
+  }
+
+  class ProjectService {
+    -projectRepository: ProjectRepository
+    +ProjectService(projectRepository: ProjectRepository)
+    +createProject(int, String, String, LocalDate, LocalDate, ProjectStatus, BigDecimal): Project
+    +addProjectToClient(client: Client, project: Project): void
+    +assignEmployee(project: Project, employee: Employee, role: String): ProjectAssignment
+    +assignEmployee(project: Project, employee: Employee, role: String, startDate: LocalDate, endDate: LocalDate): ProjectAssignment
+    +save(project: Project): void
+  }
+
+  class TimesheetService {
+    +createTimesheet(employee: Employee, project: Project, start: LocalDate, end: LocalDate): Timesheet
+    +addEntry(timesheet: Timesheet, entry: TimesheetEntry): void
+    +addEntry(timesheet: Timesheet, entryId: int, workDate: LocalDate, hours: BigDecimal, billable: boolean, description: String): void
+    +submit(timesheet: Timesheet): void
+    +approve(timesheet: Timesheet): void
+    +reject(timesheet: Timesheet, reason: String): void
+  }
+
+  class BillingService {
+    -invoiceRepository: InvoiceRepository
+    +BillingService(invoiceRepository: InvoiceRepository)
+    +createContract(project: Project, int, String, LocalDate, String, String, LocalDate, LocalDate, BigDecimal, String): Contract
+    +createInvoice(project: Project, int, String, LocalDate, String, BigDecimal): Invoice
+    +generateInvoiceFromTimesheet(invoice: Invoice, timesheet: Timesheet, ratePerHour: BigDecimal): void
+    +saveInvoice(invoice: Invoice): void
+  }
+
+  class SigningService {
+    +sign(document: Signable, signer: String): void
+    +signAll(documents: List<? extends Signable>, signer: String): void
+  }
+
+  class PayrollService {
+    +calculateCompensation(employee: Employee): BigDecimal
+    +calculateTotalCompensation(employees: Collection<? extends Employee>): BigDecimal
+    +calculateCompensations(employees: Collection<? extends Employee>): List<BigDecimal>
+  }
+
+  class ReportService {
+    +filter<T>(items: Collection<T>, condition: Predicate<T>): List<T>
+    +map<T, R>(items: Collection<T>, mapper: Function<T, R>): List<R>
+  }
+}
+
+' =========================
+' Repository :: Abstractions
+' =========================
+package "Repository :: Abstractions" {
+  interface Repository<ID, T extends Identifiable<ID>> {
+    +save(entity: T): void
+    +findById(id: ID): Optional<T>
+    +findAll(): List<T>
+    +deleteById(id: ID): void
+  }
+
+  interface EmployeeRepository
+  interface ProjectRepository {
+    +findByIdWithClient(id: Integer): Optional<Project>
+  }
+  interface InvoiceRepository {
+    +findByProjectId(projectId: Integer): List<Invoice>
+  }
+  interface ContractRepository {
+    +findByProjectId(projectId: Integer): List<Contract>
+  }
+  interface DepartmentRepository
+  interface PositionRepository
+  interface ClientRepository
+  interface TimesheetRepository
+}
+
+' =========================
+' Repository :: In-Memory
+' =========================
+package "Repository :: In-Memory" {
+  class InMemoryRepository<ID, T extends Identifiable<ID>> {
+    -storage: Map<ID, T>
+    +save(entity: T): void
+    +findById(id: ID): Optional<T>
+    +findAll(): List<T>
+    +deleteById(id: ID): void
+  }
+
+  class InMemoryEmployeeRepository
+  class InMemoryProjectRepository
+  class InMemoryInvoiceRepository
+}
+
+' =========================
+' Persistence :: JDBC
+' =========================
+package "Persistence :: JDBC" {
+  class DatabaseConnection {
+    +getConnection(): Connection
+  }
+
+  class GenericJdbcRepository<T, ID> {
+    -connection: Connection
+  }
+
+  class JdbcEmployeeRepository {
+    +findAll(): List<Employee>
+    +findById(id: Integer): Optional<Employee>
+    +save(employee: Employee): void
+    +deleteById(id: Integer): void
+  }
+
+  class JdbcProjectRepository {
+    +findAll(): List<Project>
+    +findById(id: Integer): Optional<Project>
+    +findByIdWithClient(id: Integer): Optional<Project>
+    +save(project: Project): void
+    +deleteById(id: Integer): void
+  }
+
+  class JdbcInvoiceRepository {
+    +findAll(): List<Invoice>
+    +findById(id: Integer): Optional<Invoice>
+    +findByProjectId(projectId: Integer): List<Invoice>
+    +save(invoice: Invoice): void
+    +deleteById(id: Integer): void
+  }
+
+  class JdbcContractRepository {
+    +findAll(): List<Contract>
+    +findById(id: Integer): Optional<Contract>
+    +findByProjectId(projectId: Integer): List<Contract>
+    +save(contract: Contract): void
+    +deleteById(id: Integer): void
+  }
+
+  class JdbcDepartmentRepository
+  class JdbcPositionRepository
+  class JdbcClientRepository
+  class JdbcTimesheetRepository
+}
+
+' =========================
+' Backend API :: Generic CRUD
+' =========================
+package "Backend API :: Generic CRUD" {
+  class BackendApplication {
+    +main(args: String[]): void
+  }
+
+  class CrudController {
+    -crudService: GenericCrudService
+    -registry: CrudRegistry
+    +list(model: String, page: String, limit: String): ResponseEntity<ApiResponse>
+    +showByPath(model: String, id: String): ResponseEntity<ApiResponse>
+    +showByQuery(model: String, id: String): ResponseEntity<ApiResponse>
+    +create(model: String, body: Map<String,Object>): ResponseEntity<ApiResponse>
+    +update(model: String, body: Map<String,Object>): ResponseEntity<ApiResponse>
+    +delete(model: String, body: Map<String,Object>): ResponseEntity<ApiResponse>
+    -resolveRecordById(model: String, id: String): Map<String,Object>
+  }
+
+  class GenericCrudService {
+    -registry: CrudRegistry
+    +list(model: String, pageRequest: PageRequest): PaginatedResult
+    +create(model: String, body: Map<String,Object>): Map<String,Object>
+    +update(model: String, body: Map<String,Object>): Map<String,Object>
+    +delete(model: String, body: Map<String,Object>): Map<String,Object>
+  }
+
+  class CrudRegistry {
+    -adapters: Map<String, ModelAdapter>
+    +CrudRegistry(adapterList: List<ModelAdapter>)
+    +resolve(model: String): ModelAdapter
+  }
+
+  interface ModelAdapter {
+    +list(): List<Map<String,Object>>
+    +create(body: Map<String,Object>): Map<String,Object>
+    +update(body: Map<String,Object>): Map<String,Object>
+    +delete(body: Map<String,Object>): Map<String,Object>
+    +modelName(): String
+    +identityField(): String
+    +writableFields(): List<String>
+  }
+
+  class PageRequest {
+    -page: int
+    -limit: int
+    +fromRaw(page: String, limit: String): PageRequest
+    +page(): int
+    +limit(): int
+  }
+
+  class CrudValidation {
+    +validateAllowedFields(body: Map<String,Object>, adapter: ModelAdapter, requireId: boolean): void
+  }
+
+  class ApiResponse {
+    +ok: boolean
+    +data: Object
+    +meta: Map<String,Object>
+    +error: ApiError
+    +success(data: Object): ApiResponse
+    +success(data: Object, meta: Map<String,Object>): ApiResponse
+    +failure(message: String): ApiResponse
+  }
+
+  class ApiError {
+    +message: String
+    +code: String
+    +details: Object
+  }
+
+  class ApiException {
+    +message: String
+    +status: int
+    +code: String
+    +details: Map<String,Object>
+  }
+
+  class PaginatedResult {
+    +data(): List<Map<String,Object>>
+    +totalRecords(): int
+    +totalPages(): int
+    +currentPage(): int
+    +limit(): int
+  }
+}
+
+package "Backend API :: Adapters" {
+  class EmployeesAdapter
+  class ProjectsAdapter
+  class ClientsAdapter
+  class DepartmentsAdapter
+  class PositionsAdapter
+  class ContractsAdapter
+  class InvoicesAdapter
+  class AdapterSupport
+}
+
+' =========================
+' Workflow + Cross-Cutting + App
+' =========================
+package "Workflow :: Reusable Components" {
+  class ApprovalQueue<T> {
+    -queue: Queue<T>
+    +enqueue(item: T): void
+    +dequeue(): T
+    +peek(): T
+    +isEmpty(): boolean
+    +size(): int
+  }
+}
+
+package "Cross-Cutting :: Validation & Exceptions" {
+  class Validation {
+    +requireNonNull<T>(value: T, field: String): T
+    +requireNonBlank(value: String, field: String): String
+    +requireNonNegative(value: BigDecimal, field: String): BigDecimal
+    +requireNonNegative(value: int, field: String): int
+    +requireDateOrder(start: LocalDate, end: LocalDate, field: String): void
+  }
+
+  class DomainException
+  class AssignmentException
+  class BillingException
+  class InvalidContractStateException
+  class InvalidInvoiceStateException
+  class InvalidTimesheetStateException
+}
+
+package "Application :: Demo Runner" {
+  class App {
+    +main(args: String[]): void
+    -printSection(title: String): void
+  }
+}
+
+' ----- relationships -----
+Employee ..|> Identifiable
+Contract ..|> Identifiable
+Invoice ..|> Identifiable
+Project ..|> Identifiable
+Timesheet ..|> Identifiable
+Client ..|> Identifiable
+Department ..|> Identifiable
+Position ..|> Identifiable
+
+PermanentEmployee --|> Employee
+ContractEmployee --|> Employee
+Contract ..|> Signable
+Invoice ..|> Signable
+
+EmployeeRepository ..|> Repository
+ProjectRepository ..|> Repository
+InvoiceRepository ..|> Repository
+ContractRepository ..|> Repository
+DepartmentRepository ..|> Repository
+PositionRepository ..|> Repository
+ClientRepository ..|> Repository
+TimesheetRepository ..|> Repository
+
+InMemoryRepository ..|> Repository
+InMemoryEmployeeRepository --|> InMemoryRepository
+InMemoryProjectRepository --|> InMemoryRepository
+InMemoryInvoiceRepository --|> InMemoryRepository
+InMemoryEmployeeRepository ..|> EmployeeRepository
+InMemoryProjectRepository ..|> ProjectRepository
+InMemoryInvoiceRepository ..|> InvoiceRepository
+
+JdbcEmployeeRepository ..|> EmployeeRepository
+JdbcProjectRepository ..|> ProjectRepository
+JdbcInvoiceRepository ..|> InvoiceRepository
+JdbcContractRepository ..|> ContractRepository
+JdbcDepartmentRepository ..|> DepartmentRepository
+JdbcPositionRepository ..|> PositionRepository
+JdbcClientRepository ..|> ClientRepository
+JdbcTimesheetRepository ..|> TimesheetRepository
+
+EmployeesAdapter ..|> ModelAdapter
+ProjectsAdapter ..|> ModelAdapter
+ClientsAdapter ..|> ModelAdapter
+DepartmentsAdapter ..|> ModelAdapter
+PositionsAdapter ..|> ModelAdapter
+ContractsAdapter ..|> ModelAdapter
+InvoicesAdapter ..|> ModelAdapter
+
+CrudController --> GenericCrudService
+CrudController --> CrudRegistry
+GenericCrudService --> CrudRegistry
+CrudRegistry --> ModelAdapter
+CrudController --> ApiResponse
+GenericCrudService --> PaginatedResult
+
+EmployeeService --> EmployeeRepository
+ProjectService --> ProjectRepository
+BillingService --> InvoiceRepository
+SigningService --> Signable
+PayrollService --> Employee
+ReportService --> Employee
+ReportService --> Project
+ReportService --> Timesheet
+
+Department "1" o-- "*" Employee
+Department "1" o-- "*" Position
+Client "1" o-- "*" Project
+Project "1" o-- "*" ProjectAssignment
+Project "1" o-- "*" Timesheet
+Project "1" o-- "*" Contract
+Project "1" o-- "*" Invoice
+Timesheet "1" o-- "*" TimesheetEntry
+Employee "*" -- "*" ProjectAssignment
+
+App --> EmployeeService
+App --> ProjectService
+App --> TimesheetService
+App --> BillingService
+App --> SigningService
+App --> PayrollService
+App --> ReportService
+App --> DatabaseConnection
+App --> Repository
+
+@enduml

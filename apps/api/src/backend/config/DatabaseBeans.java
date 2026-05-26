@@ -4,8 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import persistence.DatabaseConnection;
 import persistence.jdbc.JdbcClientRepository;
+import persistence.jdbc.JdbcContractRepository;
 import persistence.jdbc.JdbcDepartmentRepository;
 import persistence.jdbc.JdbcEmployeeRepository;
+import persistence.jdbc.JdbcInvoiceRepository;
 import persistence.jdbc.JdbcPositionRepository;
 import persistence.jdbc.JdbcProjectRepository;
 
@@ -42,5 +44,15 @@ public class DatabaseBeans {
     @Bean
     public JdbcPositionRepository positionRepository(Connection connection) {
         return new JdbcPositionRepository(connection);
+    }
+
+    @Bean
+    public JdbcContractRepository contractRepository(Connection connection) {
+        return new JdbcContractRepository(connection);
+    }
+
+    @Bean
+    public JdbcInvoiceRepository invoiceRepository(Connection connection) {
+        return new JdbcInvoiceRepository(connection);
     }
 }

@@ -32,6 +32,16 @@ const menu: Modules = [
         title: 'Projects',
         icon: 'dashboard',
       },
+      {
+        name: 'contracts',
+        title: 'Contracts',
+        icon: 'file-text',
+      },
+      {
+        name: 'invoices',
+        title: 'Invoices',
+        icon: 'money-dollar-circle',
+      },
     ],
   }
 ]

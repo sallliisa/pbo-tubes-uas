@@ -24,9 +24,10 @@ public class PositionsAdapter implements ModelAdapter {
 
     @Override
     public Map<String, Object> create(Map<String, Object> body) {
-        Position position = fromBody(body, AdapterSupport.requiredInt(body, "position_id"));
+        int id = AdapterSupport.nextIntId(repository.findAll());
+        Position position = fromBody(body, id);
         repository.save(position);
-        return repository.findById(position.getId()).map(this::toMap).orElseThrow(() -> new ApiException("Record not found", 404));
+        return repository.findById(id).map(this::toMap).orElseThrow(() -> new ApiException("Record not found", 404));
     }
 
     @Override

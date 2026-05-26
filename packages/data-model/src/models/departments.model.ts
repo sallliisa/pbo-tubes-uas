@@ -8,7 +8,7 @@ const departments: ModelConfig = withModelDefaults({
   fields: ['department_id', 'name'],
   fieldsAlias: {
     department_id: 'Department ID',
-    name: 'Name',
+    name: 'Department Name',
   },
   view: {
     list: {
@@ -16,8 +16,8 @@ const departments: ModelConfig = withModelDefaults({
     },
   },
   transaction: {
+    fields: ['name'],
     inputConfig: {
-      department_id: { type: 'number', props: { required: true } },
       name: { type: 'text', props: { required: true, validation: z.string().min(1) } },
     },
   },

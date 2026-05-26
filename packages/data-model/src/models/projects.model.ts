@@ -5,16 +5,17 @@ import { z } from 'zod'
 const projects: ModelConfig = withModelDefaults({
   name: 'projects',
   title: 'Projects',
-  fields: ['project_id', 'client_id', 'name', 'description', 'start_date', 'end_date', 'status', 'budget'],
+  fields: ['project_id', 'client_id', 'name', 'description', 'start_date', 'end_date', 'status', 'budget', 'total_billed_amount'],
   fieldsAlias: {
     project_id: 'Project ID',
-    client_id: 'Client ID',
-    name: 'Name',
+    client_id: 'Client',
+    name: 'Project Name',
     description: 'Description',
     start_date: 'Start Date',
     end_date: 'End Date',
     status: 'Status',
     budget: 'Budget',
+    total_billed_amount: 'Total Billed Amount',
   },
   view: {
     list: {
@@ -22,9 +23,23 @@ const projects: ModelConfig = withModelDefaults({
     },
   },
   transaction: {
+    fields: ['client_id', 'name', 'description', 'start_date', 'end_date', 'status', 'budget'],
     inputConfig: {
-      project_id: { type: 'number', props: { required: true } },
-      client_id: { type: 'number' },
+      client_id: {
+        type: 'lookup',
+        props: {
+          required: true,
+          getAPI: 'clients',
+          fields: ['name', 'industry', 'contact_name'],
+          fieldsAlias: {
+            name: 'Client Name',
+            industry: 'Industry',
+            contact_name: 'Contact Name',
+          },
+          pick: 'client_id',
+          placeholder: 'Select client',
+        },
+      },
       name: { type: 'text', props: { required: true } },
       description: { type: 'textarea', props: { required: true } },
       start_date: { type: 'date', props: { required: true } },

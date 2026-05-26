@@ -1,0 +1,271 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+
+' =========================
+' Domain: Common
+' =========================
+package "Domain :: Common" as DCommon {
+  interface Identifiable<ID> {
+    +getId(): ID
+  }
+
+  interface Signable {
+    +sign(signer: String): void
+    +isSigned(): boolean
+  }
+}
+
+' =========================
+' Domain: Organization
+' =========================
+package "Domain :: Organization" as DOrg {
+  abstract class Employee {
+    -employeeId: int
+    -firstName: String
+    -lastName: String
+    -email: String
+    -salary: BigDecimal
+    +getFullName(): String
+    +calculateCompensation(): BigDecimal
+    +getEmployeeType(): String
+  }
+
+  class PermanentEmployee {
+    -benefitPlan: String
+    -annualLeaveQuota: int
+  }
+
+  class ContractEmployee {
+    -contractStartDate: LocalDate
+    -contractEndDate: LocalDate
+  }
+
+  class Department
+  class Position
+  class Client
+}
+
+' =========================
+' Domain: Project
+' =========================
+package "Domain :: Project" as DProject {
+  class Project
+  class ProjectAssignment
+  enum ProjectStatus
+}
+
+' =========================
+' Domain: Timesheet
+' =========================
+package "Domain :: Timesheet" as DTime {
+  class Timesheet
+  class TimesheetEntry
+  enum TimesheetStatus
+}
+
+' =========================
+' Domain: Billing
+' =========================
+package "Domain :: Billing" as DBilling {
+  class Contract
+  class Invoice
+  enum ContractStatus
+  enum InvoiceStatus
+}
+
+' =========================
+' Service Layer (Use Cases)
+' =========================
+package "Service Layer :: Use Cases" as Svc {
+  class EmployeeService
+  class ProjectService
+  class TimesheetService
+  class BillingService
+  class SigningService
+  class PayrollService
+  class ReportService
+}
+
+' =========================
+' Repository Abstractions
+' =========================
+package "Repository :: Abstractions" as RAbs {
+  interface Repository<ID, T extends Identifiable<ID>> {
+    +save(entity: T): void
+    +findById(id: ID): Optional<T>
+    +findAll(): List<T>
+    +deleteById(id: ID): void
+  }
+
+  interface EmployeeRepository
+  interface ProjectRepository
+  interface InvoiceRepository
+  interface ContractRepository
+  interface DepartmentRepository
+  interface PositionRepository
+  interface ClientRepository
+  interface TimesheetRepository
+}
+
+' =========================
+' Repository In-Memory
+' =========================
+package "Repository :: In-Memory" as RMem {
+  class InMemoryRepository<ID, T extends Identifiable<ID>>
+  class InMemoryEmployeeRepository
+  class InMemoryProjectRepository
+  class InMemoryInvoiceRepository
+}
+
+' =========================
+' Persistence JDBC
+' =========================
+package "Persistence :: JDBC" as PJdbc {
+  class DatabaseConnection
+  class GenericJdbcRepository
+  class JdbcEmployeeRepository
+  class JdbcProjectRepository
+  class JdbcInvoiceRepository
+  class JdbcContractRepository
+  class JdbcDepartmentRepository
+  class JdbcPositionRepository
+  class JdbcClientRepository
+  class JdbcTimesheetRepository
+}
+
+' =========================
+' Backend API (Spring)
+' =========================
+package "Backend API :: Generic CRUD" as Api {
+  class BackendApplication
+  class CrudController
+  class GenericCrudService
+  class CrudRegistry
+  interface ModelAdapter
+  class ApiResponse
+  class PaginatedResult
+  class ApiException
+}
+
+package "Backend API :: Adapters" as ApiAdapters {
+  class EmployeesAdapter
+  class ProjectsAdapter
+  class ClientsAdapter
+  class DepartmentsAdapter
+  class PositionsAdapter
+  class ContractsAdapter
+  class InvoicesAdapter
+}
+
+' =========================
+' Workflow Utilities
+' =========================
+package "Workflow :: Reusable Flow Components" as Wf {
+  class ApprovalQueue<T>
+}
+
+' =========================
+' Exception / Validation
+' =========================
+package "Cross-Cutting :: Validation & Exceptions" as Cross {
+  class Validation
+  class DomainException
+  class AssignmentException
+  class BillingException
+  class InvalidContractStateException
+  class InvalidInvoiceStateException
+  class InvalidTimesheetStateException
+}
+
+' =========================
+' Demo Runner
+' =========================
+package "Application :: Demo Runner" as AppLayer {
+  class App
+}
+
+' ----- Inheritance / Interface Realization -----
+Employee ..|> Identifiable
+PermanentEmployee --|> Employee
+ContractEmployee --|> Employee
+Contract ..|> Signable
+Invoice ..|> Signable
+
+EmployeeRepository ..|> Repository
+ProjectRepository ..|> Repository
+InvoiceRepository ..|> Repository
+ContractRepository ..|> Repository
+DepartmentRepository ..|> Repository
+PositionRepository ..|> Repository
+ClientRepository ..|> Repository
+TimesheetRepository ..|> Repository
+
+InMemoryRepository ..|> Repository
+InMemoryEmployeeRepository --|> InMemoryRepository
+InMemoryProjectRepository --|> InMemoryRepository
+InMemoryInvoiceRepository --|> InMemoryRepository
+
+JdbcEmployeeRepository ..|> EmployeeRepository
+JdbcProjectRepository ..|> ProjectRepository
+JdbcInvoiceRepository ..|> InvoiceRepository
+JdbcContractRepository ..|> ContractRepository
+JdbcDepartmentRepository ..|> DepartmentRepository
+JdbcPositionRepository ..|> PositionRepository
+JdbcClientRepository ..|> ClientRepository
+JdbcTimesheetRepository ..|> TimesheetRepository
+
+EmployeesAdapter ..|> ModelAdapter
+ProjectsAdapter ..|> ModelAdapter
+ClientsAdapter ..|> ModelAdapter
+DepartmentsAdapter ..|> ModelAdapter
+PositionsAdapter ..|> ModelAdapter
+ContractsAdapter ..|> ModelAdapter
+InvoicesAdapter ..|> ModelAdapter
+
+' ----- Key associations -----
+Department "1" o-- "*" Employee
+Department "1" o-- "*" Position
+Employee "*" -- "*" ProjectAssignment
+Project "1" o-- "*" ProjectAssignment
+Project "1" o-- "*" Timesheet
+Timesheet "1" o-- "*" TimesheetEntry
+Project "1" o-- "*" Contract
+Project "1" o-- "*" Invoice
+Client "1" o-- "*" Project
+
+' ----- Service dependencies -----
+EmployeeService --> EmployeeRepository
+ProjectService --> ProjectRepository
+BillingService --> InvoiceRepository
+SigningService --> Signable
+PayrollService --> Employee
+ReportService --> Employee
+ReportService --> Project
+ReportService --> Timesheet
+
+' ----- API dependencies -----
+CrudController --> GenericCrudService
+CrudController --> CrudRegistry
+GenericCrudService --> CrudRegistry
+CrudRegistry --> ModelAdapter
+ModelAdapter --> EmployeeRepository
+ModelAdapter --> ProjectRepository
+ModelAdapter --> ClientRepository
+ModelAdapter --> DepartmentRepository
+ModelAdapter --> PositionRepository
+ModelAdapter --> ContractRepository
+ModelAdapter --> InvoiceRepository
+
+' ----- Runner wiring -----
+App --> EmployeeService
+App --> ProjectService
+App --> TimesheetService
+App --> BillingService
+App --> SigningService
+App --> PayrollService
+App --> ReportService
+App --> Repository
+App --> DatabaseConnection
+
+@enduml

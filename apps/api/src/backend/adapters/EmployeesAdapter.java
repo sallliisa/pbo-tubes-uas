@@ -9,7 +9,9 @@ import domain.organization.Employee;
 import domain.organization.Position;
 import domain.organization.PermanentEmployee;
 import org.springframework.stereotype.Component;
+import persistence.jdbc.JdbcDepartmentRepository;
 import persistence.jdbc.JdbcEmployeeRepository;
+import persistence.jdbc.JdbcPositionRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,9 +21,17 @@ import java.util.Map;
 @Component
 public class EmployeesAdapter implements ModelAdapter {
     private final JdbcEmployeeRepository repository;
+    private final JdbcPositionRepository positionRepository;
+    private final JdbcDepartmentRepository departmentRepository;
 
-    public EmployeesAdapter(JdbcEmployeeRepository repository) {
+    public EmployeesAdapter(
+        JdbcEmployeeRepository repository,
+        JdbcPositionRepository positionRepository,
+        JdbcDepartmentRepository departmentRepository
+    ) {
         this.repository = repository;
+        this.positionRepository = positionRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     @Override
@@ -31,9 +41,10 @@ public class EmployeesAdapter implements ModelAdapter {
 
     @Override
     public Map<String, Object> create(Map<String, Object> body) {
-        Employee employee = fromBody(body, false);
+        int id = AdapterSupport.nextIntId(repository.findAll());
+        Employee employee = fromBody(body, id);
         repository.save(employee);
-        return repository.findById(employee.getId()).map(this::toMap)
+        return repository.findById(id).map(this::toMap)
             .orElseThrow(() -> new ApiException("Record not found", 404));
     }
 
@@ -41,7 +52,7 @@ public class EmployeesAdapter implements ModelAdapter {
     public Map<String, Object> update(Map<String, Object> body) {
         int id = AdapterSupport.requiredInt(body, identityField());
         repository.findById(id).orElseThrow(() -> new ApiException("Record not found", 404));
-        Employee employee = fromBody(body, true);
+        Employee employee = fromBody(body, id);
         repository.save(employee);
         return repository.findById(id).map(this::toMap).orElseThrow(() -> new ApiException("Record not found", 404));
     }
@@ -55,8 +66,7 @@ public class EmployeesAdapter implements ModelAdapter {
         return deleted;
     }
 
-    private Employee fromBody(Map<String, Object> body, boolean update) {
-        int employeeId = AdapterSupport.requiredInt(body, "employee_id");
+    private Employee fromBody(Map<String, Object> body, int employeeId) {
         String firstName = AdapterSupport.requiredString(body, "first_name");
         String lastName = AdapterSupport.requiredString(body, "last_name");
         String email = AdapterSupport.requiredString(body, "email");
@@ -67,16 +77,36 @@ public class EmployeesAdapter implements ModelAdapter {
         if ("Permanent Employee".equals(employeeType)) {
             String benefitPlan = AdapterSupport.requiredString(body, "benefit_plan");
             int annualLeaveQuota = AdapterSupport.requiredInt(body, "annual_leave_quota");
-            return new PermanentEmployee(employeeId, firstName, lastName, email, hireDate, salary, benefitPlan, annualLeaveQuota);
+            Employee employee = new PermanentEmployee(employeeId, firstName, lastName, email, hireDate, salary, benefitPlan, annualLeaveQuota);
+            bindRelations(body, employee);
+            return employee;
         }
 
         if ("Contract Employee".equals(employeeType)) {
             LocalDate contractStartDate = AdapterSupport.requiredDate(body, "contract_start_date");
             LocalDate contractEndDate = AdapterSupport.requiredDate(body, "contract_end_date");
-            return new ContractEmployee(employeeId, firstName, lastName, email, hireDate, salary, contractStartDate, contractEndDate);
+            Employee employee = new ContractEmployee(employeeId, firstName, lastName, email, hireDate, salary, contractStartDate, contractEndDate);
+            bindRelations(body, employee);
+            return employee;
         }
 
         throw new ApiException("employee_type must be 'Permanent Employee' or 'Contract Employee'", 400);
+    }
+
+    private void bindRelations(Map<String, Object> body, Employee employee) {
+        Integer positionId = AdapterSupport.optionalInt(body, "position_id");
+        if (positionId != null) {
+            Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new ApiException("position_id references non-existent position", 400));
+            employee.assignPosition(position);
+        }
+
+        Integer departmentId = AdapterSupport.optionalInt(body, "department_id");
+        if (departmentId != null) {
+            Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ApiException("department_id references non-existent department", 400));
+            employee.setDepartment(department);
+        }
     }
 
     private Map<String, Object> toMap(Employee employee) {
@@ -148,7 +178,7 @@ public class EmployeesAdapter implements ModelAdapter {
     public List<String> writableFields() {
         return List.of(
             "employee_id", "first_name", "last_name", "email", "hire_date", "salary", "employee_type",
-            "benefit_plan", "annual_leave_quota", "contract_start_date", "contract_end_date"
+            "position_id", "department_id", "benefit_plan", "annual_leave_quota", "contract_start_date", "contract_end_date"
         );
     }
 }

@@ -15,6 +15,16 @@ public final class FieldUtil {
         }
     }
 
+    public static void setField(Object target, String name, Object value) {
+        try {
+            Field field = findField(target.getClass(), name);
+            field.setAccessible(true);
+            field.set(target, value);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to write field " + name, e);
+        }
+    }
+
     private static Field findField(Class<?> type, String name) throws NoSuchFieldException {
         Class<?> current = type;
         while (current != null) {

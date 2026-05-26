@@ -61,7 +61,7 @@ public abstract class GenericJdbcRepository<ID, T extends Identifiable<ID>> impl
             bindSaveStatement(ps, entity);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new JdbcRepositoryException("Failed to save entity to " + tableName, e);
+            throw new JdbcRepositoryException("Failed to save entity to " + tableName + ": " + e.getMessage(), e);
         }
     }
 

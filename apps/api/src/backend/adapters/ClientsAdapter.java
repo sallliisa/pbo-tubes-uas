@@ -24,8 +24,9 @@ public class ClientsAdapter implements ModelAdapter {
 
     @Override
     public Map<String, Object> create(Map<String, Object> body) {
+        int id = AdapterSupport.nextIntId(repository.findAll());
         Client client = new Client(
-            AdapterSupport.requiredInt(body, "client_id"),
+            id,
             AdapterSupport.requiredString(body, "name"),
             AdapterSupport.requiredString(body, "industry"),
             AdapterSupport.requiredString(body, "contact_name"),
@@ -33,7 +34,7 @@ public class ClientsAdapter implements ModelAdapter {
             AdapterSupport.requiredString(body, "contact_phone")
         );
         repository.save(client);
-        return repository.findById(client.getId()).map(this::toMap).orElseThrow(() -> new ApiException("Record not found", 404));
+        return repository.findById(id).map(this::toMap).orElseThrow(() -> new ApiException("Record not found", 404));
     }
 
     @Override

@@ -45,6 +45,15 @@ public final class AdapterSupport {
         throw new ApiException(key + " must be a number", 400);
     }
 
+    public static int nextIntId(List<? extends Identifiable<Integer>> entities) {
+        return entities.stream()
+            .map(Identifiable::getId)
+            .filter(id -> id != null)
+            .mapToInt(Integer::intValue)
+            .max()
+            .orElse(0) + 1;
+    }
+
     public static String requiredString(Map<String, Object> body, String key) {
         Object value = body.get(key);
         if (value == null) throw new ApiException(key + " is required", 400);

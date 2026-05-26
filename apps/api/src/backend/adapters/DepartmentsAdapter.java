@@ -24,12 +24,13 @@ public class DepartmentsAdapter implements ModelAdapter {
 
     @Override
     public Map<String, Object> create(Map<String, Object> body) {
+        int id = AdapterSupport.nextIntId(repository.findAll());
         Department department = new Department(
-            AdapterSupport.requiredInt(body, "department_id"),
+            id,
             AdapterSupport.requiredString(body, "name")
         );
         repository.save(department);
-        return repository.findById(department.getId()).map(this::toMap).orElseThrow(() -> new ApiException("Record not found", 404));
+        return repository.findById(id).map(this::toMap).orElseThrow(() -> new ApiException("Record not found", 404));
     }
 
     @Override
